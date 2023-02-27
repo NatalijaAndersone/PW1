@@ -3,19 +3,20 @@ package com.android.example.pw1
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.android.example.pw1.databinding.ActivityMain2Binding
 import java.util.*
-import kotlin.collections.ArrayList
+
 
 class MainActivity2 : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMain2Binding
@@ -62,6 +63,8 @@ class MainActivity2 : AppCompatActivity() {
             }
         }
 
+
+
         viewPagerAdapter = ViewPagerAdapter(this, imageList)
         viewPager.adapter = viewPagerAdapter
 
@@ -75,6 +78,7 @@ class MainActivity2 : AppCompatActivity() {
         return true
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle item selection
         return when (item.itemId) {
@@ -84,7 +88,30 @@ class MainActivity2 : AppCompatActivity() {
                 true
             }
             R.id.delete -> {
+                val collection =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        MediaStore.Images.Media.getContentUri(
+                            MediaStore.VOLUME_EXTERNAL
+                        )
+                    } else {
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    }
+                val projection = arrayOf(
+                    MediaStore.Images.Media._ID
+                )
 
+                val cursor = contentResolver.query(collection, projection, null, null, null)
+
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                        val contentUri = ContentUris.withAppendedId(collection, id)
+                        contentResolver.delete(contentUri, null, null)
+                    }
+                }
+
+                val record = Intent(this, MainActivity2::class.java)
+                startActivity(record)
 
                 true
             }
