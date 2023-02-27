@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PW1</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="show_images">Show Images</string>
+    <string name="take_image">Camera</string>
+    <string name="delete">Delete</string>
+    <string name="audio">Audio</string>
+</resources>
