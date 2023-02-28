@@ -7,32 +7,33 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.ImageCapture
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.android.example.pw1.databinding.ActivityMainBinding
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import android.widget.Toast
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.core.Preview
-import androidx.camera.core.CameraSelector
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.*
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.android.example.pw1.databinding.ActivityMainBinding
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 typealias LumaListener = (luma: Double) -> Unit
 
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var analytics: FirebaseAnalytics
+
     private lateinit var viewBinding: ActivityMainBinding
 
     private var imageCapture: ImageCapture? = null
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+
+        // Obtain the FirebaseAnalytics instance.
+        analytics = Firebase.analytics
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -198,11 +202,22 @@ class MainActivity : AppCompatActivity() {
             R.id.show_images -> {
                 val record = Intent(this, MainActivity2::class.java)
                 startActivity(record)
+
+                analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
+                    param(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity2");
+                    param(FirebaseAnalytics.Param.SCREEN_NAME, "Gallery");
+                }
+
                 true
             }
             R.id.audio -> {
                 val record = Intent(this, MainActivity3::class.java)
                 startActivity(record)
+
+                analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
+                    param(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity3");
+                    param(FirebaseAnalytics.Param.SCREEN_NAME, "Audio");
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
