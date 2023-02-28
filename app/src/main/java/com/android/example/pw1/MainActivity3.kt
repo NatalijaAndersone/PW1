@@ -18,11 +18,16 @@ import android.widget.Button
 import android.widget.ListView
 
 import androidx.core.app.ActivityCompat
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.io.IOException
 
 class MainActivity3 : AppCompatActivity() {
 
+    private lateinit var analytics: FirebaseAnalytics
     private val recordings = mutableListOf<File>()
     private lateinit var recordingAdapter: RecordingAdapter
 
@@ -37,6 +42,8 @@ class MainActivity3 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main3)
 
+        // Obtain the FirebaseAnalytics instance.
+        analytics = Firebase.analytics
 
         recordButton = findViewById(R.id.record_button)
         recordingsList = findViewById(R.id.recordings_list)
@@ -69,6 +76,9 @@ class MainActivity3 : AppCompatActivity() {
     }
 
     private fun startRecording() {
+        analytics.logEvent("Start_audio_recording") {
+            param("Screen_location", "MainActivity3")
+        }
         try {
             mediaRecorder?.prepare()
             mediaRecorder?.start()
@@ -80,6 +90,9 @@ class MainActivity3 : AppCompatActivity() {
     }
 
     private fun stopRecording() {
+        analytics.logEvent("Stop_audio_recording") {
+            param("Screen_location", "MainActivity3")
+        }
         mediaRecorder?.stop()
         mediaRecorder?.release()
         mediaRecorder = null
@@ -123,11 +136,17 @@ class MainActivity3 : AppCompatActivity() {
         // Handle item selection
         return when (item.itemId) {
             R.id.take_images -> {
+                analytics.logEvent("Go_to_camera") {
+                    param("Screen_location", "MainActivity3")
+                }
                 val record = Intent(this, MainActivity::class.java)
                 startActivity(record)
                 true
             }
             R.id.delete -> {
+                analytics.logEvent("Delete_audio") {
+                    param("Screen_location", "MainActivity3")
+                }
 
                 val dir = File(Environment.getExternalStorageDirectory().absolutePath + "/Recordings/")
                 if (dir.exists()) {

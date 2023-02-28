@@ -82,6 +82,11 @@ class MainActivity : AppCompatActivity() {
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
+        analytics.logEvent("Take_picture") {
+            param("Screen_location", "MainActivity")
+        }
+
+
 
         // Create time stamped name and MediaStore entry.
         val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
@@ -200,6 +205,9 @@ class MainActivity : AppCompatActivity() {
         // Handle item selection
         return when (item.itemId) {
             R.id.show_images -> {
+                analytics.logEvent("Show_images") {
+                    param("Screen_location", "MainActivity")
+                }
                 val record = Intent(this, MainActivity2::class.java)
                 startActivity(record)
 
@@ -214,9 +222,8 @@ class MainActivity : AppCompatActivity() {
                 val record = Intent(this, MainActivity3::class.java)
                 startActivity(record)
 
-                analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT) {
-                    param(FirebaseAnalytics.Param.SCREEN_CLASS, "MainActivity3");
-                    param(FirebaseAnalytics.Param.SCREEN_NAME, "Audio");
+                analytics.logEvent("Go_to_audio") {
+                    param("Screen_location", "MainActivity")
                 }
                 true
             }

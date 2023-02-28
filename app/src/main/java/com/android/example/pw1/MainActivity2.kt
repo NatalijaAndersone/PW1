@@ -11,13 +11,19 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.android.example.pw1.databinding.ActivityMain2Binding
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import java.util.*
 
 
 class MainActivity2 : AppCompatActivity() {
+    private lateinit var analytics: FirebaseAnalytics
     private lateinit var viewBinding: ActivityMain2Binding
     lateinit var imageList: List<Uri>
 
@@ -28,7 +34,11 @@ class MainActivity2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         viewBinding = ActivityMain2Binding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+
         imageList = ArrayList<Uri>()
+
+        // Obtain the FirebaseAnalytics instance.
+        analytics = Firebase.analytics
 
         viewPager = viewBinding.pager
 
@@ -52,7 +62,9 @@ class MainActivity2 : AppCompatActivity() {
 
             while(cursor.moveToNext()) {
                 val id = cursor.getLong(idCollumn)
-
+                analytics.logEvent("Load_images") {
+                    param("Screen_location", "MainActivity2")
+                }
                 val contentUri =  ContentUris.withAppendedId(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     id
@@ -84,9 +96,15 @@ class MainActivity2 : AppCompatActivity() {
             R.id.take_images -> {
                 val record = Intent(this, MainActivity::class.java)
                 startActivity(record)
+                analytics.logEvent("Go_to_Camera") {
+                    param("Screen_location", "MainActivity2")
+                }
                 true
             }
             R.id.delete -> {
+                analytics.logEvent("Delete_pictures") {
+                    param("Screen_location", "MainActivity2")
+                }
                 val collection =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         MediaStore.Images.Media.getContentUri(
@@ -115,6 +133,9 @@ class MainActivity2 : AppCompatActivity() {
                 true
             }
             R.id.audio -> {
+                analytics.logEvent("Go_to_audio") {
+                    param("Screen_location", "MainActivity2")
+                }
                 val record = Intent(this, MainActivity3::class.java)
                 startActivity(record)
                 true
@@ -135,6 +156,7 @@ class ViewPagerAdapter (val context: Context, val imageList: List<Uri>) : PagerA
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
+
         val mlayoutInflater =
             context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
